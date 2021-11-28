@@ -1,4 +1,4 @@
-name: remote-ai
+name: remote_ai
 
 modules:
     - remote: https://github.com/Polydelta-ai/zimagi-usa-jobs.git
