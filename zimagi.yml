@@ -1,5 +1,7 @@
 name: remote_ai
 
+requirements: requirements.txt
+
 modules:
     - remote: https://github.com/Polydelta-ai/zimagi-usa-jobs.git
       reference: main
