@@ -1,0 +1,71 @@
+command_mixins:
+    remote_ai:
+        class: RemoteAIMixin
+        mixins: [usa_job]
+        parameters:
+            dataset_name:
+                parser: variable
+                type: str
+                help: "Name of AI model source dataset"
+                value_label: "NAME"
+            model_name:
+                parser: variable
+                type: str
+                help: "Name for AI model results"
+                value_label: "NAME"
+            save_default:
+                parser: flag
+                flag: "--default"
+                help: "Save model results as default for predictions"
+            job_title:
+                parser: variable
+                type: str
+                help: "Job title"
+                value_label: "NAME"
+            job_classifications:
+                parser: variables
+                type: str
+                help: "Job classification names"
+                value_label: "NAME"
+            job_description:
+                parser: variable
+                type: str
+                help: "Job description"
+                value_label: "DESCRIPTION"
+
+command_base:
+    remote_ai_admin:
+        mixins: [remote_ai]
+        server_enabled: true
+        groups_allowed: [remote-ai-admin]
+
+    remote_ai_user:
+        mixins: [remote_ai]
+        server_enabled: true
+        groups_allowed: [remote-ai-admin, remote-ai-user]
+
+command:
+    remote:
+        priority: 500
+        train:
+            base: remote_ai_admin
+            priority: 60
+            parse:
+                model_name: false
+                dataset_name: true
+                save_default:
+
+        default:
+            base: remote_ai_admin
+            priority: 65
+            parse:
+                model_name: true
+
+        predict:
+            base: remote_ai_user
+            priority: 70
+            parse:
+                job_title: false
+                job_classifications: "--classifications"
+                job_description: "--description"
+                model_name: "--model"
