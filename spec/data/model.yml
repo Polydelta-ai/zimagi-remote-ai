@@ -1,0 +1,72 @@
+data_mixins:
+    remote_ai_model:
+        class: RemoteAIModelMixin
+        fields:
+            model:
+                type: "@django.ForeignKey"
+                relation: remote_ai_model
+                options:
+                    "null": true
+                    on_delete: "@django.PROTECT"
+                    editable: false
+
+    remote_ai_models:
+        class: RemoteAIModelsMixin
+        fields:
+            models:
+                type: "@django.ManyToManyField"
+                relation: remote_ai_model
+
+data_base:
+    remote_ai_model:
+        class: RemoteAIModelBase
+        base: resource
+        mixins: [remote_ai_model]
+        id_fields: [model_id, name]
+        meta:
+            unique_together: [model, name]
+            scope: model
+
+data:
+    remote_ai_model:
+        class: RemoteAIModel
+        base: resource
+        roles:
+            edit: [remote-ai-admin]
+            view: [remote-ai-admin]
+        fields:
+            dataset_name:
+                type: "@django.CharField"
+                options:
+                    "null": false
+                    max_length: 256
+        meta:
+            verbose_name: model
+            ordering_fields: [name, dataset_name]
+            ordering: [name]
+            search_fields: [name, dataset_name]
+            command_base: remote model
+
+command_mixins:
+    remote_ai_model:
+        class: RemoteAIModelMixin
+        meta:
+            model:
+                data: remote_ai_model
+                priority: 1
+
+command_base:
+    remote_ai_model:
+        mixins: [remote_ai_model]
+        server_enabled: true
+        groups_allowed: [remote-ai-admin]
+
+command:
+    remote:
+        model:
+            resource: remote_ai_model
+            base: remote_ai_model
+            base_name: model
+            priority: 90
+            options:
+                allow_update: false
