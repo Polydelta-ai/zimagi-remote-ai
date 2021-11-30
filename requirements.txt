@@ -1,7 +1,3 @@
-# Utilities
-requests==2.26.0
-typing==3.7.4.3
-
 # Machine learning
 scikit-learn==1.0.1
 transformers==4.12.5
