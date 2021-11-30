@@ -1,13 +1,8 @@
 command_mixins:
     remote_ai:
         class: RemoteAIMixin
-        mixins: [usa_job]
+        mixins: [dataset, usa_job]
         parameters:
-            dataset_name:
-                parser: variable
-                type: str
-                help: "Name of AI model source dataset"
-                value_label: "NAME"
             model_name:
                 parser: variable
                 type: str
@@ -52,7 +47,7 @@ command:
             priority: 60
             parse:
                 model_name: false
-                dataset_name: true
+                data_name: true
                 save_default:
 
         default:
