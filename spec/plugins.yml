@@ -2,4 +2,5 @@ plugin:
     function:
         providers:
             data_preprocess:
-            data_check_remote:
+            data_convert_bool:
+            data_combined_text:
