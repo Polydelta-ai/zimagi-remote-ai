@@ -4,8 +4,10 @@ config:
         - name < data_preprocess
         - description < data_preprocess
         - classification_names:CONCAT:classifications__name:distinct=True < data_preprocess
-        - location_names:CONCAT:locations__name:distinct=True
-        - target < data_check_remote:location_names:test="Location Negotiable"
+        - combined_text < data_combined_text:name:append=description,classification_names;separator="\n\n"
+        - telework_eligible < data_convert_bool
+
+    drop: [name, description, classification_names]
 
 run:
     remote-ai-data:
@@ -15,3 +17,4 @@ run:
         dataset_fields:
             index_field: id
             "job:fields": "@fields"
+            "job:remove_fields": "@drop"
