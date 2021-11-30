@@ -1,0 +1,17 @@
+config:
+    name: "remote-ai-data-#time()"
+    fields:
+        - name < data_preprocess
+        - description < data_preprocess
+        - classification_names:CONCAT:classifications__name:distinct=True < data_preprocess
+        - location_names:CONCAT:locations__name:distinct=True
+        - target < data_check_remote:location_names:test="Location Negotiable"
+
+run:
+    remote-ai-data:
+        command: "data save"
+        dataset_provider_name: "collection"
+        dataset_name: "@name"
+        dataset_fields:
+            index_field: id
+            "job:fields": "@fields"
