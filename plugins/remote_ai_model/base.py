@@ -29,7 +29,7 @@ class BaseProvider(BasePlugin('remote_ai_model')):
 
     @property
     def model_id(self):
-        return "{}-{}".format(self.field_model_name, self.timestamp)
+        return self.field_model_name
 
 
     @property
