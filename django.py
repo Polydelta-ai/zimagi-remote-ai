@@ -1,6 +1,13 @@
 from settings.config import Config
-
-
+#
+# Model project configurations
+#
+REMOTE_AI_PROJECT_NAME = Config.string('ZIMAGI_REMOTE_AI_PROJECT_NAME', 'remote_ai')
+REMOTE_AI_PROJECT_MODEL_DIR = Config.string('ZIMAGI_REMOTE_AI_PROJECT_MODEL_DIR', 'models')
+REMOTE_AI_PROJECT_RESULT_DIR = Config.string('ZIMAGI_REMOTE_AI_PROJECT_RESULT_DIR', 'results')
+#
+# Dataprocessing configurations
+#
 REMOTE_AI_STOPWORDS = Config.list('ZIMAGI_REMOTE_AI_STOPWORDS', [
     "ourselves",
     "hers",
