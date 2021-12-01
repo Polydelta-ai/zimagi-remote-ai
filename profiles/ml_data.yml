@@ -7,7 +7,7 @@ config:
         - combined_text < data_combined_text:name:append=description,classification_names;separator="\n\n"
         - telework_eligible < data_convert_bool
 
-    drop: [name, description, classification_names]
+    drop: [name, description, classification_names, id]
 
 run:
     remote-ai-data:
