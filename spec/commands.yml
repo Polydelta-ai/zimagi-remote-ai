@@ -8,25 +8,27 @@ command_mixins:
                 type: str
                 help: "Name for AI model results"
                 value_label: "NAME"
-            save_default:
+            model_provider_name:
+                parser: variable
+                type: str
+                help: "AI model Zimagi plugin provider"
+                value_label: "NAME"
+                default: tdidf_svc
+
+    remote_ai_training:
+        class: RemoteAITrainingMixin
+        mixins: [remote_ai]
+        parameters:
+            shuffle_data:
                 parser: flag
-                flag: "--default"
-                help: "Save model results as default for predictions"
-            job_title:
+                flag: "--shuffle"
+                help: "Shuffle all training and test data"
+            training_percentage:
                 parser: variable
-                type: str
-                help: "Job title"
-                value_label: "NAME"
-            job_classifications:
-                parser: variables
-                type: str
-                help: "Job classification names"
-                value_label: "NAME"
-            job_description:
-                parser: variable
-                type: str
-                help: "Job description"
-                value_label: "DESCRIPTION"
+                type: float
+                help: "Percentage of total data allocated for training"
+                value_label: "PERCENT"
+                default: 0.7
 
 command_base:
     remote_ai_admin:
@@ -44,11 +46,20 @@ command:
         priority: 500
         train:
             base: remote_ai_admin
+            mixins: [remote_ai_training]
             priority: 60
+            parameters:
+                save_default:
+                    parser: flag
+                    flag: "--default"
+                    help: "Save model results as default for predictions"
             parse:
                 model_name: false
                 data_name: true
+                model_provider_name: "--provider"
+                training_percentage: "--training-percent"
                 save_default:
+                shuffle_data:
 
         default:
             base: remote_ai_admin
@@ -59,8 +70,25 @@ command:
         predict:
             base: remote_ai_user
             priority: 70
+            parameters:
+                job_title:
+                    parser: variable
+                    type: str
+                    help: "Job title"
+                    value_label: "NAME"
+                job_classifications:
+                    parser: variables
+                    type: str
+                    help: "Job classification names"
+                    value_label: "NAME"
+                job_description:
+                    parser: variable
+                    type: str
+                    help: "Job description"
+                    value_label: "DESCRIPTION"
             parse:
                 job_title: false
                 job_classifications: "--classifications"
                 job_description: "--description"
                 model_name: "--model"
+                model_provider_name: "--provider"
