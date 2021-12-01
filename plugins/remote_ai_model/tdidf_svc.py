@@ -8,8 +8,17 @@ import pickle
 
 class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
 
+    def __init__(self, type, name, command, model_name, model_config):
+        super().__init__(type, name, command, model_name, model_config)
+
+        self.tfidf_trainer = self.tfidf_trainer_class()(self)
+
+
     def model_file(self, model_path):
-        return "{}-{}".format(model_path, 'classifier_model.pk')
+        return "{}_{}".format(model_path, 'classifier_model.pk')
+
+    def tfidf_trainer_class(self):
+        return TfidfTrainer
 
 
     def load(self):
@@ -35,15 +44,16 @@ class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
 
 
     def train(self, dataset, **params):
-        tfidf_module = TfidfTrainer(self)
-        tfidf_module.fit(dataset[self.field_predictor_field])
+        self.tfidf_trainer.fit(dataset[self.field_predictor_field])
 
         results = self.model.fit(
-            tfidf_module.transform(dataset[self.field_predictor_field]),
+            self.tfidf_trainer.transform(dataset[self.field_predictor_field]),
             dataset[self.field_target_field]
         )
         self.save()
         return results
 
     def predict(self, dataset, **params):
-        return self.model.predict_proba(dataset[self.field_predictor_field])
+        return self.model.predict_proba(
+            self.tfidf_trainer.transform(dataset[self.field_predictor_field])
+        )
