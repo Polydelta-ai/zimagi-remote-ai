@@ -1,0 +1,38 @@
+plugin:
+    remote_ai_model:
+        base: base
+        requirement:
+            model_name:
+                type: str
+                help: "Model name"
+            predictor_field:
+                type: str
+                help: "Name of the prediction field within given dataset"
+            target_field:
+                type: str
+                help: "Name of the prediction target field within given dataset"
+
+        interface:
+            build:
+                returns: "*"
+            load:
+                returns: "*"
+            save:
+
+            train:
+                params:
+                    params: dict
+                returns: "*"
+            predict:
+                params:
+                    params: dict
+                returns: "dataframe"
+
+            export:
+                params:
+                    name: str
+                    data: dataframe
+                    options: dict
+
+        providers:
+            tdidf_svc:
