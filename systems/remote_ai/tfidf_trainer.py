@@ -12,10 +12,10 @@ class TfidfTrainer(object):
 
 
     def word_vectorizer_file(self, vectorizer_path):
-        return "{}-{}".format(vectorizer_path, 'word_vectorizer.pk')
+        return "{}_{}".format(vectorizer_path, 'word_vectorizer.pk')
 
     def char_vectorizer_file(self, vectorizer_path):
-        return "{}-{}".format(vectorizer_path, 'char_vectorizer.pk')
+        return "{}_{}".format(vectorizer_path, 'char_vectorizer.pk')
 
 
     def load(self):
@@ -74,7 +74,6 @@ class TfidfTrainer(object):
         self.word_vectorizer.fit(dataset)
         self.char_vectorizer.fit(dataset)
         self.save()
-
 
     def transform(self, dataset):
         tfidf_word_data = self.word_vectorizer.transform(dataset).toarray()
