@@ -1,5 +1,4 @@
 from systems.commands.index import CommandMixin
-from utility.data import ensure_list
 
 
 class RemoteAITrainingMixin(CommandMixin('remote_ai_training')):
@@ -36,9 +35,6 @@ class RemoteAITrainingMixin(CommandMixin('remote_ai_training')):
 
         self.notice('Loading or building model')
         model.load()
-
-        self.data('Remote AI Model', self.model_name)
-        self.info(model.summary())
         return model
 
     def model_parameters(self):
