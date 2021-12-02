@@ -12,11 +12,12 @@ class MetaPreprocessor(type):
         text = self.remove_stopwords(text)
         text = self.remove_freqwords(text)
         text = self.remove_urls(text)
+        text = self.remove_extra_whitespace(text)
         return text
 
 
     def remove_punctuation(self, text):
-        return text.translate(str.maketrans(" ", " ", string.punctuation))
+        return text.translate(str.maketrans(string.punctuation, ' ' * len(string.punctuation)))
 
     def remove_stopwords(self, text):
         text = [
@@ -41,7 +42,11 @@ class MetaPreprocessor(type):
 
     def remove_urls(self, text):
         url_pattern = re.compile(r'https?://\S+|www\.\S+')
-        return url_pattern.sub(r'', text)
+        return url_pattern.sub('', text)
+
+    def remove_extra_whitespace(self, text):
+        whitespace_pattern = re.compile(r'\s+')
+        return whitespace_pattern.sub(' ', text)
 
 
 class Preprocessor(object, metaclass = MetaPreprocessor):
