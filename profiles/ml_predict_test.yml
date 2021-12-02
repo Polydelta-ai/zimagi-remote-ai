@@ -1,0 +1,32 @@
+config:
+    model_name: "test"
+    provider: "tdidf_svc"
+
+    title: "Physician"
+
+    description: "The VISN 10 Clinical Resource Hub is recruiting for six Physicians (Primary Care). The Physicians (Primary Care) will
+    function virtually within the VISN 10 Clinical Resource Hub, a repository of clinical &amp; administrative staff that
+    serve VA facilities within VISN 10 that are underserved or experiencing gaps in clinicians due to the inability to match
+    provider supply with demand. Services provided by CRH staff are conducted via multiple modalities, including virtual
+    and in-person care. This is a public notice of upcoming announcement for FAA authorized Computer Engineer, Electronic
+    Engineer, Computer Scientist, Information Technology Specialist Cybersecurity positions open to U.S. Citizens. Positions
+    may be announced for FV-H through K or grades FG-12 through 15. This position is located in the Health Benefits,
+    Memorial, Corporate (HBMC) organization, Office of Information and Technology (OI&T) serving as an Senior IT Specialist
+    responsible for the full range of duties associated with one or more IT specialty areas required to support:
+    FIELD DEVELOPMENT. This is a 100% Remote Work position. We are seeking a motivated, customer service oriented
+    professional to serve as Contract Specialist, with occasional travel to Arlington, VA and Paris. You will report to
+    the Director of Contracting, located in Paris. The first review of applications will be after 30 September 2021.
+    This announcement will remain open until the position is filled."
+
+    classifications:
+      - Healthcare
+      - Doctor
+
+run:
+    test-prediction:
+        command: "remote predict"
+        model_name: "@model_name"
+        model_provider_name: "@provider"
+        job_title: "@title"
+        job_description: "@description"
+        job_classifications: "@classifications"
