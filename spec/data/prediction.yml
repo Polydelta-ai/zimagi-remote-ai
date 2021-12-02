@@ -65,10 +65,11 @@ data:
 command_mixins:
     remote_ai_prediction:
         class: RemoteAIPredictionMixin
+        mixins: [remote_ai_model]
         meta:
             remote_ai_prediction:
                 data: remote_ai_prediction
-                priority: 1
+                priority: 3
 
 command_base:
     remote_ai_prediction:
