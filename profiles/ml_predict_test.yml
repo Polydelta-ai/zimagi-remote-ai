@@ -1,10 +1,9 @@
 config:
-    model_name: "test"
-    provider: "tdidf_svc"
+    model_name: "test1"
 
-    title: "Physician"
+    text: "Physician
 
-    description: "The VISN 10 Clinical Resource Hub is recruiting for six Physicians (Primary Care). The Physicians (Primary Care) will
+    The VISN 10 Clinical Resource Hub is recruiting for six Physicians (Primary Care). The Physicians (Primary Care) will
     function virtually within the VISN 10 Clinical Resource Hub, a repository of clinical &amp; administrative staff that
     serve VA facilities within VISN 10 that are underserved or experiencing gaps in clinicians due to the inability to match
     provider supply with demand. Services provided by CRH staff are conducted via multiple modalities, including virtual
@@ -16,17 +15,12 @@ config:
     FIELD DEVELOPMENT. This is a 100% Remote Work position. We are seeking a motivated, customer service oriented
     professional to serve as Contract Specialist, with occasional travel to Arlington, VA and Paris. You will report to
     the Director of Contracting, located in Paris. The first review of applications will be after 30 September 2021.
-    This announcement will remain open until the position is filled."
+    This announcement will remain open until the position is filled.
 
-    classifications:
-      - Healthcare
-      - Doctor
+    Healthcare,Doctor"
 
 run:
     test-prediction:
         command: "remote predict"
-        model_name: "@model_name"
-        model_provider_name: "@provider"
-        job_title: "@title"
-        job_description: "@description"
-        job_classifications: "@classifications"
+        remote_ai_model_name: "@model_name"
+        job_text: "@text"
