@@ -15,9 +15,8 @@ command:
                 job_text:
                     parser: variable
                     type: str
-                    help: "Job title"
+                    help: "Job text"
                     value_label: "NAME"
-                    default: ''
             parse:
                 remote_ai_model_name: false
                 job_text: false
