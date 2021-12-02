@@ -1,0 +1,33 @@
+config_store:
+    remote_ai_model_list_fields:
+        - name
+        - provider_type
+        - training_percentage
+        - dataset
+        - groups
+    remote_ai_model_display_fields:
+        - id
+        - name
+        - provider_type
+        - config
+        - variables
+        - training_percentage
+        - created
+        - updated
+        - dataset
+        - groups
+
+    remote_ai_prediction_list_fields:
+        - created
+        - prediction
+        - threshold_diff
+        - classification
+        - model
+    remote_ai_prediction_display_fields:
+        - id
+        - created
+        - job_text
+        - prediction
+        - threshold_diff
+        - classification
+        - model
