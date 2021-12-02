@@ -30,26 +30,33 @@ data_base:
 data:
     remote_ai_prediction:
         class: RemoteAIPrediction
-        mixins: [job_classifications]
-        base: resource
+        base: remote_ai_model
         roles:
             edit: [remote-ai-admin]
             view: [remote-ai-admin]
-        id_fields: [created]
+        id_fields: [model_id, created]
         key: created
         fields:
             name: null
-            job_title:
-                type: "@django.CharField"
-                options:
-                    "null": false
-                    max_length: 256
-            job_description:
+            job_text:
                 type: "@django.TextField"
                 options:
                     "null": true
+            prediction:
+                type: "@django.FloatField"
+                options:
+                    "null": false
+            threshold_diff:
+                type: "@django.FloatField"
+                options:
+                    "null": false
+            classification:
+                type: "@django.CharField"
+                options:
+                    "null": true
+                    max_length: 100
         meta:
-            verbose_name: prediction
+            unique_together: [model, created]
             ordering_fields: [job_title, created]
             ordering: [-created]
             search_fields: [job_title, job_description]
@@ -58,9 +65,8 @@ data:
 command_mixins:
     remote_ai_prediction:
         class: RemoteAIPredictionMixin
-        mixins: [job_classification]
         meta:
-            prediction:
+            remote_ai_prediction:
                 data: remote_ai_prediction
                 priority: 1
 
@@ -75,7 +81,7 @@ command:
         prediction:
             resource: remote_ai_prediction
             base: remote_ai_prediction
-            base_name: prediction
+            base_name: remote_ai_prediction
             priority: 90
             options:
                 allow_update: false
