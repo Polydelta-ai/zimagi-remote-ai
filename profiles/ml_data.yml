@@ -21,5 +21,6 @@ run:
             index_field: id
             column_prefix: false
             processors:
+                - processor_drop_na
                 - processor_drop_duplicates
                 - processor_shuffle
