@@ -31,29 +31,41 @@ data:
     remote_ai_model:
         class: RemoteAIModel
         base: resource
+        mixins: [provider, group]
         roles:
             edit: [remote-ai-admin]
             view: [remote-ai-admin]
         fields:
-            dataset_name:
-                type: "@django.CharField"
+            dataset:
+                type: "@django.ForeignKey"
+                relation: dataset
+                color: relation
                 options:
-                    "null": false
-                    max_length: 256
+                    "null": true
+                    on_delete: "@django.SET_NULL"
+                    editable: false
+            training_percentage:
+                type: "@django.FloatField"
+                options:
+                    "null": true
+                    default: 1
         meta:
-            verbose_name: model
-            ordering_fields: [name, dataset_name]
-            ordering: [name]
-            search_fields: [name, dataset_name]
+            ordering_fields: [name, dataset__name]
+            ordering: [name, -created]
+            search_fields: [name, dataset__name]
+            provider_name: remote_ai_model
             command_base: remote model
 
 command_mixins:
     remote_ai_model:
         class: RemoteAIModelMixin
+        mixins: [dataset]
         meta:
-            model:
+            remote_ai_model:
                 data: remote_ai_model
-                priority: 1
+                provider: true
+                default: tdidf_svc
+                priority: 2
 
 command_base:
     remote_ai_model:
@@ -66,7 +78,5 @@ command:
         model:
             resource: remote_ai_model
             base: remote_ai_model
-            base_name: model
+            base_name: remote_ai_model
             priority: 90
-            options:
-                allow_update: false
