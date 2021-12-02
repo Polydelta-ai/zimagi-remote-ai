@@ -1,6 +1,8 @@
 plugin:
     function:
         providers:
-            data_preprocess:
-            data_convert_bool:
-            data_combined_text:
+            field_preprocess:
+            field_bool_to_number:
+            field_combined_text:
+            processor_drop_duplicates:
+            processor_shuffle:

@@ -1,7 +1,7 @@
 from systems.plugins.index import BaseProvider
 
 
-class Provider(BaseProvider('function', 'data_combined_text')):
+class Provider(BaseProvider('function', 'field_combined_text')):
 
     def exec(self, data, field_data, append = None, separator = "\n"):
         if append:
