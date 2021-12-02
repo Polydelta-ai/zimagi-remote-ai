@@ -1,4 +1,3 @@
-from sklearn.utils import shuffle
 from django.conf import settings
 
 from systems.plugins.index import BasePlugin
@@ -11,97 +10,140 @@ import math
 
 class BaseProvider(BasePlugin('remote_ai_model')):
 
-    def __init__(self, type, name, command, model_name, model_config):
-        super().__init__(type, name, command)
+    def __init__(self, type, name, command, instance = None):
+        super().__init__(type, name, command, instance)
 
-        model_config['model_name'] = model_name
-        self.import_config(model_config)
-
+        self.model = None
         self.time_processor = Time(
             settings.DEFAULT_DATE_FORMAT,
             settings.DEFAULT_TIME_FORMAT,
             settings.DEFAULT_TIME_SPACER_FORMAT
         )
+        if instance:
+            self._load(instance)
 
-        self.model = None
-        self.timestamp = self.time_processor.now
+    def store_related(self, instance, created, test):
+        self._load(instance)
+        self._train(instance, save = not test)
+
+    def finalize_instance(self, instance):
+        self._remove(instance)
 
 
-    @property
-    def model_id(self):
-        return self.field_model_name
-
-
-    @property
-    def _model_project(self):
+    def get_model_project(self):
         return project_dir(settings.REMOTE_AI_PROJECT_NAME, settings.REMOTE_AI_PROJECT_MODEL_DIR)
 
-    @property
-    def _result_project(self):
+    def get_result_project(self):
         return project_dir(settings.REMOTE_AI_PROJECT_NAME, settings.REMOTE_AI_PROJECT_RESULT_DIR)
 
 
-    def load(self):
-        with self._model_project as project:
-            model_path = project.path(self.model_id)
+    def model_file(self, project_path, instance):
+        return "{}_{}_{}".format(project_path, self.name, instance.name)
 
-            if project.exists(self.model_id):
-                self.model = self.load_model(model_path)
-            else:
-                self.build()
+
+    def _load(self, instance):
+        if not self.model:
+            with self.get_model_project() as project:
+                model_path = project.path(instance.name)
+
+                if project.exists(self.model_file(model_path, instance)):
+                    self.model = self.load_model(project, instance)
+                else:
+                    self._build(instance)
+
+            self.init_model(instance)
+
         return self.model
 
-    def build(self):
-        self.model = self.build_model()
-        self.save()
+    def init_model(self, instance):
+        # Override in sub class if needed
+        pass
 
-    def load_model(self, model_path):
+    def load_model(self, project, instance):
         raise NotImplementedError("Implement load_model in derived classes of the base Machine Learning Model provider")
 
-    def build_model(self):
+    def _build(self, instance):
+        self.model = self.build_model(instance)
+        self._save(instance)
+
+    def build_model(self, instance):
         raise NotImplementedError("Implement build_model in derived classes of the base Machine Learning Model provider")
 
 
-    def save(self):
-        with self._model_project as project:
-            self.save_model(project.path(self.model_id))
+    def _save(self, instance):
+        self.command.notice("Saving {} model: {}".format(self.name, instance.name))
+        with self.get_model_project() as project:
+            self.save_model(project, instance)
 
-    def save_model(self, model_path):
+    def save_model(self, project, instance):
         raise NotImplementedError("Implement save_model in derived classes of the base Machine Learning Model provider")
 
 
-    def train(self, dataset, **params):
+    def _remove(self, instance):
+        self.command.notice("Removing {} model: {}".format(self.name, instance.name))
+        with self.get_model_project() as project:
+            self.remove_model(project, instance)
+
+    def remove_model(self, project, instance):
+        project.remove(self.model_file(project.path(instance.name), instance))
+
+
+    def split_data(self, dataset, training_percentage = 1):
+        sample_data = list()
+        percentages = [ training_percentage, 1 - training_percentage ]
+        index = 0
+
+        for percentage in percentages:
+            if percentage > 0:
+                length = math.floor(dataset.shape[0] * percentage)
+                sample_data.append(dataset[index:(index + length)])
+                index += length
+            else:
+                sample_data.append(None)
+
+        return sample_data[0], sample_data[1]
+
+
+    def _train(self, instance, save = True):
+        results = None
+        dataset = instance.dataset.provider.load()
+
+        if dataset is not None:
+            self.command.notice("Training {} model {}".format(self.name, instance.name))
+            results = self.train_model(instance, dataset)
+
+            if save:
+                self._save(instance)
+
+        return results
+
+    def train_model(self, instance, dataset):
         raise NotImplementedError("Implement train in derived classes of the base Machine Learning Model provider")
 
-    def predict(self, dataset, **params):
+
+    def predict(self, data):
+        instance = self.check_instance('predict')
+        results = None
+
+        if data is not None:
+            self.command.notice("Predicting with {} model {} given: {}".format(
+                self.name,
+                instance.name,
+                data
+            ))
+            results = self.predict_model(instance, data)
+
+        return results
+
+    def predict_model(self, instance, data):
         raise NotImplementedError("Implement train in derived classes of the base Machine Learning Model provider")
 
 
     def export(self, name, data, **options):
-        with self._result_project as project:
+        instance = self.check_instance('export')
+
+        with self.get_result_project() as project:
             project.save(
                 data.to_csv(date_format = self.time_processor.time_format, **options),
-                get_csv_file_name("{}_{}".format(self.model_id, name))
+                get_csv_file_name("{}_{}_{}".format(self.name, instance.name, name))
             )
-
-
-    def split_data(self, dataset, training_percentage = 0.75, shuffle = True):
-
-        def normalize(data):
-            return data.fillna(0)
-
-        sample_data = list()
-        percentages = [ training_percentage, 100 - training_percentage ]
-        index = 0
-
-        dataset = dataset.drop_duplicates()
-
-        if shuffle:
-            dataset = shuffle(dataset)
-
-        for percentage in percentages:
-            length = math.floor(dataset.shape[0] * percentage)
-            sample_data.append(normalize(dataset[index:(index + length)]))
-            index += length
-
-        return sample_data[0], sample_data[1]

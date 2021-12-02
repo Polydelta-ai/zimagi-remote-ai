@@ -8,52 +8,51 @@ import pickle
 
 class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
 
-    def __init__(self, type, name, command, model_name, model_config):
-        super().__init__(type, name, command, model_name, model_config)
-
-        self.tfidf_trainer = self.tfidf_trainer_class()(self)
-
-
-    def model_file(self, model_path):
-        return "{}_{}".format(model_path, 'classifier_model.pk')
-
-    def tfidf_trainer_class(self):
+    def tfidf_processor_class(self):
         return TfidfTrainer
 
 
-    def load(self):
-        with self._model_project as project:
-            model_path = project.path(self.model_id)
+    def init_model(self, instance):
+        self.tfidf_trainer = self.tfidf_processor_class()(self)
 
-            if project.exists(self.model_file(model_path)):
-                self.model = self.load_model(model_path)
-            else:
-                self.build()
-        return self.model
-
-    def load_model(self, model_path):
-        with open(self.model_file(model_path), "rb") as file:
+    def load_model(self, project, instance):
+        with open(self.model_file(project.path(instance.name), instance), "rb") as file:
             return pickle.load(file)
 
-    def build_model(self):
-        return SVC(kernel = "linear", probability = True, random_state = 1234)
-
-    def save_model(self, model_path):
-        with open(self.model_file(model_path), "wb") as file:
+    def save_model(self, project, instance):
+        with open(self.model_file(project.path(instance.name), instance), "wb") as file:
             pickle.dump(self.model, file)
 
-
-    def train(self, dataset, **params):
-        self.tfidf_trainer.fit(dataset[self.field_predictor_field])
-
-        results = self.model.fit(
-            self.tfidf_trainer.transform(dataset[self.field_predictor_field]),
-            dataset[self.field_target_field]
+    def build_model(self, instance):
+        return SVC(
+            kernel = "linear",
+            probability = True,
+            random_state = 1234
         )
-        self.save()
-        return results
 
-    def predict(self, dataset, **params):
-        return self.model.predict_proba(
-            self.tfidf_trainer.transform(dataset[self.field_predictor_field])
+
+    def train_model(self, instance, dataset):
+        self.command.notice("Fitting {} model {} TFIDF trainer".format(self.name, instance.name))
+        self.tfidf_trainer.fit(dataset[self.field_predictor])
+
+        self.command.notice("Fitting {} model {} classifications".format(self.name, instance.name))
+        return self.model.fit(
+            self.tfidf_trainer.transform(dataset[self.field_predictor]),
+            dataset[self.field_target]
         )
+
+    def predict_model(self, instance, data):
+        multiple = True
+
+        if isinstance(data, (tuple, list)):
+            data = list(data)
+        elif isinstance(data, str):
+            data = [data]
+            multiple = False
+        else:
+            data = data[self.field_predictor]
+
+        results = self.model.predict_proba(
+            self.tfidf_trainer.transform(data)
+        )[:, 1]
+        return results if multiple else results[0]
