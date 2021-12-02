@@ -4,5 +4,6 @@ plugin:
             field_preprocess:
             field_bool_to_number:
             field_combined_text:
+            processor_drop_na:
             processor_drop_duplicates:
             processor_shuffle:
