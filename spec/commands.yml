@@ -1,94 +1,23 @@
-command_mixins:
-    remote_ai:
-        class: RemoteAIMixin
-        mixins: [dataset, usa_job]
-        parameters:
-            model_name:
-                parser: variable
-                type: str
-                help: "Name for AI model results"
-                value_label: "NAME"
-            model_provider_name:
-                parser: variable
-                type: str
-                help: "AI model Zimagi plugin provider"
-                value_label: "NAME"
-                default: tdidf_svc
-
-    remote_ai_training:
-        class: RemoteAITrainingMixin
-        mixins: [remote_ai]
-        parameters:
-            shuffle_data:
-                parser: flag
-                flag: "--shuffle"
-                help: "Shuffle all training and test data"
-            training_percentage:
-                parser: variable
-                type: float
-                help: "Percentage of total data allocated for training"
-                value_label: "PERCENT"
-                default: 0.7
-
 command_base:
-    remote_ai_admin:
-        mixins: [remote_ai]
-        server_enabled: true
-        groups_allowed: [remote-ai-admin]
-
     remote_ai_user:
-        mixins: [remote_ai]
+        mixins: [remote_ai_model]
         server_enabled: true
         groups_allowed: [remote-ai-admin, remote-ai-user]
 
 command:
     remote:
         priority: 500
-        train:
-            base: remote_ai_admin
-            mixins: [remote_ai_training]
-            priority: 60
-            parameters:
-                save_default:
-                    parser: flag
-                    flag: "--default"
-                    help: "Save model results as default for predictions"
-            parse:
-                model_name: false
-                data_name: true
-                model_provider_name: "--provider"
-                training_percentage: "--training-percent"
-                save_default:
-                shuffle_data:
-
-        default:
-            base: remote_ai_admin
-            priority: 65
-            parse:
-                model_name: true
-
         predict:
             base: remote_ai_user
+            mixins: [remote_ai_prediction]
             priority: 70
             parameters:
-                job_title:
+                job_text:
                     parser: variable
                     type: str
                     help: "Job title"
                     value_label: "NAME"
-                job_classifications:
-                    parser: variables
-                    type: str
-                    help: "Job classification names"
-                    value_label: "NAME"
-                job_description:
-                    parser: variable
-                    type: str
-                    help: "Job description"
-                    value_label: "DESCRIPTION"
+                    default: ''
             parse:
-                job_title: false
-                job_classifications: "--classifications"
-                job_description: "--description"
-                model_name: "--model"
-                model_provider_name: "--provider"
+                remote_ai_model_name: false
+                job_text: false
