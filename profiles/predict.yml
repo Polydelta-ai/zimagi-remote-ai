@@ -1,0 +1,9 @@
+config:
+    model: null
+    text: ""
+
+run:
+    prediction:
+        command: "remote predict"
+        remote_ai_model_name: "@model"
+        job_text: "@text"
