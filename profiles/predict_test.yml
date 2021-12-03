@@ -1,5 +1,5 @@
 config:
-    model_name: "test1"
+    model: "test1"
 
     text: "Physician
 
@@ -22,5 +22,5 @@ config:
 run:
     test-prediction:
         command: "remote predict"
-        remote_ai_model_name: "@model_name"
+        remote_ai_model_name: "@model"
         job_text: "@text"
