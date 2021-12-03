@@ -1,14 +1,13 @@
 config:
     name: "remote-ai-data-#time()"
     fields:
-        - name < field_preprocess
-        - description < field_preprocess
-        - classification_names:CONCAT:job_classifications__name:distinct=True < field_preprocess
+        - description
+        - classification_names:CONCAT:job_classifications__name:distinct=True
         - predictor_raw < field_combined_text:name:append=description,classification_names;separator=","
         - predictor < field_preprocess:predictor_raw
         - target < field_bool_to_number:telework_eligible
 
-    drop: [name, description, classification_names, predictor_raw]
+    drop: [description, classification_names, predictor_raw]
 
 run:
     remote-ai-data:
