@@ -62,6 +62,7 @@ command_mixins:
         mixins: [dataset]
         meta:
             remote_ai_model:
+                alt_names: model
                 data: remote_ai_model
                 provider: true
                 default: tdidf_svc

@@ -68,6 +68,7 @@ command_mixins:
         mixins: [remote_ai_model]
         meta:
             remote_ai_prediction:
+                alt_names: prediction
                 data: remote_ai_prediction
                 priority: 3
 
