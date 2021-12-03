@@ -23,6 +23,8 @@ class BaseProvider(BasePlugin('remote_ai_model')):
             self._load(instance)
 
     def store_related(self, instance, created, test):
+        self.instance = instance
+
         self._load(instance)
         self._train(instance, save = not test)
 
