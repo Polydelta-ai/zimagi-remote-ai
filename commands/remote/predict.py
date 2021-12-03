@@ -20,7 +20,7 @@ class Predict(Command('remote.predict')):
 
         record.save()
         self.data("Prediction", record.prediction, 'prediction')
-        self.data("Classification", record.classification, 'classification')
+        self.data("Classification", str(record.classification), 'classification')
 
 
     def classify_prediction(self, prediction):
