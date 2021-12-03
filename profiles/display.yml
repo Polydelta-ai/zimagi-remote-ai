@@ -22,7 +22,7 @@ config_store:
         - prediction
         - threshold_diff
         - classification
-        - model
+        - remote_ai_model
     remote_ai_prediction_display_fields:
         - id
         - created
@@ -30,4 +30,4 @@ config_store:
         - prediction
         - threshold_diff
         - classification
-        - model
+        - remote_ai_model
