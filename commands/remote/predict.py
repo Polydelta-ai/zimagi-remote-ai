@@ -9,7 +9,7 @@ class Predict(Command('remote.predict')):
     def exec(self):
         model = self.remote_ai_model
         record = self._remote_ai_prediction.create(None,
-            model = model,
+            remote_ai_model = model,
             job_text = self.job_text
         )
         record.prediction = model.provider.predict(
