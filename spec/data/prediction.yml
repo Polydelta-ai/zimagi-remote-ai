@@ -34,8 +34,8 @@ data:
         roles:
             edit: [remote-ai-admin]
             view: [remote-ai-admin]
-        id_fields: [remote_ai_model_id, created]
-        key: created
+        id_fields: [remote_ai_model_id, job_text]
+        key: id
         fields:
             name: null
             job_text:
@@ -56,10 +56,10 @@ data:
                     "null": true
                     max_length: 100
         meta:
-            unique_together: [remote_ai_model, created]
+            unique_together: [remote_ai_model, job_text]
             ordering_fields: [job_title, created]
             ordering: [-created]
-            search_fields: [job_title, job_description]
+            search_fields: [job_text, remote_ai_model__name]
             command_base: remote prediction
 
 command_mixins:
