@@ -34,7 +34,7 @@ data:
         roles:
             edit: [remote-ai-admin]
             view: [remote-ai-admin]
-        id_fields: [model_id, created]
+        id_fields: [remote_ai_model_id, created]
         key: created
         fields:
             name: null
