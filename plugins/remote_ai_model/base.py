@@ -108,6 +108,8 @@ class BaseProvider(BasePlugin('remote_ai_model')):
 
     def _train(self, instance, save = True):
         results = None
+
+        instance.dataset.initialize(self.command)
         dataset = instance.dataset.provider.load()
 
         if dataset is not None:
