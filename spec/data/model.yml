@@ -2,7 +2,7 @@ data_mixins:
     remote_ai_model:
         class: RemoteAIModelMixin
         fields:
-            model:
+            remote_ai_model:
                 type: "@django.ForeignKey"
                 relation: remote_ai_model
                 options:
@@ -13,7 +13,7 @@ data_mixins:
     remote_ai_models:
         class: RemoteAIModelsMixin
         fields:
-            models:
+            remote_ai_models:
                 type: "@django.ManyToManyField"
                 relation: remote_ai_model
 
@@ -22,10 +22,10 @@ data_base:
         class: RemoteAIModelBase
         base: resource
         mixins: [remote_ai_model]
-        id_fields: [model_id, name]
+        id_fields: [remote_ai_model_id, name]
         meta:
-            unique_together: [model, name]
-            scope: model
+            unique_together: [remote_ai_model, name]
+            scope: remote_ai_model
 
 data:
     remote_ai_model:
@@ -62,7 +62,6 @@ command_mixins:
         mixins: [dataset]
         meta:
             remote_ai_model:
-                alt_names: model
                 data: remote_ai_model
                 provider: true
                 default: tdidf_svc

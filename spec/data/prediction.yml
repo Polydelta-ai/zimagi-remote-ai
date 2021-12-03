@@ -2,7 +2,7 @@ data_mixins:
     remote_ai_prediction:
         class: RemoteAIPredictionMixin
         fields:
-            prediction:
+            remote_ai_prediction:
                 type: "@django.ForeignKey"
                 relation: remote_ai_prediction
                 options:
@@ -13,7 +13,7 @@ data_mixins:
     remote_ai_predictions:
         class: RemoteAIPredictionsMixin
         fields:
-            predictions:
+            remote_ai_predictions:
                 type: "@django.ManyToManyField"
                 relation: remote_ai_prediction
 
@@ -22,10 +22,10 @@ data_base:
         class: RemoteAIPredictionBase
         base: resource
         mixins: [remote_ai_prediction]
-        id_fields: [prediction_id, name]
+        id_fields: [remote_ai_prediction_id, name]
         meta:
-            unique_together: [prediction, name]
-            scope: prediction
+            unique_together: [remote_ai_prediction, name]
+            scope: remote_ai_prediction
 
 data:
     remote_ai_prediction:
@@ -56,7 +56,7 @@ data:
                     "null": true
                     max_length: 100
         meta:
-            unique_together: [model, created]
+            unique_together: [remote_ai_model, created]
             ordering_fields: [job_title, created]
             ordering: [-created]
             search_fields: [job_title, job_description]
@@ -68,7 +68,6 @@ command_mixins:
         mixins: [remote_ai_model]
         meta:
             remote_ai_prediction:
-                alt_names: prediction
                 data: remote_ai_prediction
                 priority: 3
 
