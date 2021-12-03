@@ -1,5 +1,5 @@
 config:
-    name: "remote-ai-data-#time()"
+    name: "remote-ai-data-#time(%Y-%m-%d)"
     fields:
         - description
         - classification_names:CONCAT:job_classifications__name:distinct=True
