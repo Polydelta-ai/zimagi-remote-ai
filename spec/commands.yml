@@ -1,6 +1,35 @@
+command_mixins:
+    remote_ai:
+        class: RemoteAIMixin
+        mixins: [remote_ai_model]
+        parameters:
+            model_groups:
+                parser: variables
+                type: str
+                help: "Group names for filtering relevant models"
+                value_label: "GROUP"
+            training_percentage_min:
+                parser: variable
+                type: float
+                default: 0.5
+                help: "Minimum training percentage allowed for comparing model performance"
+                value_label: "PERCENT"
+            training_percentage_max:
+                parser: variable
+                type: float
+                default: 0.8
+                help: "Maximum training percentage allowed for comparing model performance"
+                value_label: "PERCENT"
+            metric_field:
+                parser: variable
+                type: str
+                default: "f1_score"
+                help: "Metric field for optimizing prediction model"
+                value_label: "FIELD"
+
 command_base:
     remote_ai_user:
-        mixins: [remote_ai_model]
+        mixins: [remote_ai]
         server_enabled: true
         groups_allowed: [remote-ai-admin, remote-ai-user]
 
@@ -17,29 +46,6 @@ command:
                     type: str
                     help: "Job text"
                     value_label: "TEXT"
-                model_groups:
-                    parser: variables
-                    type: str
-                    help: "Group names for filtering relevant models"
-                    value_label: "GROUP"
-                training_percentage_min:
-                    parser: variable
-                    type: float
-                    default: 0.5
-                    help: "Minimum training percentage allowed for comparing model performance"
-                    value_label: "PERCENT"
-                training_percentage_max:
-                    parser: variable
-                    type: float
-                    default: 0.8
-                    help: "Maximum training percentage allowed for comparing model performance"
-                    value_label: "PERCENT"
-                metric_field:
-                    parser: variable
-                    type: str
-                    default: "f1_score"
-                    help: "Metric field for optimizing prediction model"
-                    value_label: "FIELD"
             parse:
                 job_text: false
                 remote_ai_model_name: "--model"
