@@ -52,23 +52,20 @@ class BaseProvider(BasePlugin('remote_ai_model')):
                 if project.exists(self.model_file()):
                     self.model = self.load_model(project)
                 else:
-                    self._build()
+                    self.model = self.build_model()
+                    self._save()
 
             self.init_model()
 
         return self.model
 
     def init_model(self):
-        # Override in sub class if needed
+        # Override in providers if needed
         pass
 
     def load_model(self, project):
         with open(project.path(self.model_file()), "rb") as file:
             return pickle.load(file)
-
-    def _build(self):
-        self.model = self.build_model()
-        self._save()
 
     def build_model(self):
         raise NotImplementedError("Implement build_model in derived classes of the base Machine Learning Model provider")
