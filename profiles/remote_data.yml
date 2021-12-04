@@ -3,9 +3,9 @@ config:
     fields:
         - description
         - classification_names:CONCAT:job_classifications__name:distinct=True
-        - predictor_raw < field_combined_text:name:append=description,classification_names;separator=","
-        - predictor < field_preprocess:predictor_raw
-        - target < field_bool_to_number:telework_eligible
+        - predictor_raw < combined_text:name:append=description,classification_names;separator=","
+        - predictor < preprocess:predictor_raw
+        - target < bool_to_number:telework_eligible
 
     drop: [description, classification_names, predictor_raw]
 
@@ -20,6 +20,6 @@ run:
             index_field: id
             column_prefix: false
             processors:
-                - processor_drop_na
-                - processor_drop_duplicates
-                - processor_shuffle
+                - drop_na
+                - drop_duplicates
+                - shuffle
