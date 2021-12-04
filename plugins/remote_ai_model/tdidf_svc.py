@@ -4,8 +4,6 @@ from sklearn.svm import SVC
 from systems.plugins.index import BaseProvider
 from systems.remote_ai.tfidf_trainer import TfidfTrainer
 
-import pickle
-
 
 class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
 
@@ -15,14 +13,6 @@ class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
 
     def init_model(self):
         self.tfidf_trainer = self.tfidf_processor_class()(self)
-
-    def load_model(self, project):
-        with open(project.path(self.model_file()), "rb") as file:
-            return pickle.load(file)
-
-    def save_model(self, project):
-        with open(project.path(self.model_file()), "wb") as file:
-            pickle.dump(self.model, file)
 
     def build_model(self):
         return SVC(

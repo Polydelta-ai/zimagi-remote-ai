@@ -6,6 +6,7 @@ from utility.time import Time
 from utility.project import project_dir
 from utility.dataframe import get_csv_file_name
 
+import pickle
 import math
 import pandas
 
@@ -62,7 +63,8 @@ class BaseProvider(BasePlugin('remote_ai_model')):
         pass
 
     def load_model(self, project):
-        raise NotImplementedError("Implement load_model in derived classes of the base Machine Learning Model provider")
+        with open(project.path(self.model_file()), "rb") as file:
+            return pickle.load(file)
 
     def _build(self):
         self.model = self.build_model()
@@ -78,7 +80,8 @@ class BaseProvider(BasePlugin('remote_ai_model')):
             self.save_model(project)
 
     def save_model(self, project):
-        raise NotImplementedError("Implement save_model in derived classes of the base Machine Learning Model provider")
+        with open(project.path(self.model_file()), "wb") as file:
+            pickle.dump(self.model, file)
 
 
     def _remove(self):
@@ -133,7 +136,7 @@ class BaseProvider(BasePlugin('remote_ai_model')):
                 self._save()
 
     def train_model(self, predictors, targets):
-        raise NotImplementedError("Implement train in derived classes of the base Machine Learning Model provider")
+        raise NotImplementedError("Implement train_model in derived classes of the base Machine Learning Model provider")
 
     def calculate_performance(self, predictions, targets):
         predictions = self.normalize_predictions(predictions)
@@ -144,6 +147,7 @@ class BaseProvider(BasePlugin('remote_ai_model')):
         self.instance.save()
 
     def normalize_predictions(self, predictions):
+        # Override in providers if needed
         return predictions
 
 
@@ -174,7 +178,7 @@ class BaseProvider(BasePlugin('remote_ai_model')):
         return results
 
     def predict_model(self, data):
-        raise NotImplementedError("Implement train in derived classes of the base Machine Learning Model provider")
+        raise NotImplementedError("Implement predict_model in derived classes of the base Machine Learning Model provider")
 
 
     def export(self, name, data, **options):
