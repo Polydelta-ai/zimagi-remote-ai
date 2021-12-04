@@ -19,6 +19,6 @@ plugin:
                         default: linear
                         help: "SVC classifier kernel type"
                     random_state:
-                        type: str
+                        type: int
                         default: 1234
                         help: "Random state for the SVC classifier"
