@@ -1,6 +1,4 @@
 config:
-    model: "test1"
-
     text: "Physician
 
     The VISN 10 Clinical Resource Hub is recruiting for six Physicians (Primary Care). The Physicians (Primary Care) will
@@ -22,5 +20,4 @@ config:
 run:
     test-prediction:
         command: "remote predict"
-        remote_ai_model_name: "@model"
         job_text: "@text"
