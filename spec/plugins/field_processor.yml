@@ -1,0 +1,4 @@
+plugin:
+    field_processor:
+        providers:
+            preprocess:

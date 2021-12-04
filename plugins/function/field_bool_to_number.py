@@ -1,7 +1,0 @@
-from systems.plugins.index import BaseProvider
-
-
-class Provider(BaseProvider('function', 'field_bool_to_number')):
-
-    def exec(self, data, field_data):
-        return field_data.map({ True: 1, False: 0 })
