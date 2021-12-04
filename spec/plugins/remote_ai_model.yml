@@ -2,14 +2,23 @@ plugin:
     remote_ai_model:
         base: data
         data: remote_ai_model
+        option:
+            predictor:
+                type: str
+                default: predictor
+                help: "Name of the prediction field within given dataset"
+            target:
+                type: str
+                default: target
+                help: "Name of the prediction target field within given dataset"
         providers:
             tdidf_svc:
                 option:
-                    predictor:
+                    kernel:
                         type: str
-                        default: predictor
-                        help: "Name of the prediction field within given dataset"
-                    target:
+                        default: linear
+                        help: "SVC classifier kernel type"
+                    random_state:
                         type: str
-                        default: target
-                        help: "Name of the prediction target field within given dataset"
+                        default: 1234
+                        help: "Random state for the SVC classifier"
