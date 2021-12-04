@@ -1,3 +1,4 @@
+from django.conf import settings
 from sklearn.svm import SVC
 
 from systems.plugins.index import BaseProvider
@@ -12,47 +13,40 @@ class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
         return TfidfTrainer
 
 
-    def init_model(self, instance):
+    def init_model(self):
         self.tfidf_trainer = self.tfidf_processor_class()(self)
 
-    def load_model(self, project, instance):
-        with open(self.model_file(project.path(instance.name), instance), "rb") as file:
+    def load_model(self, project):
+        with open(project.path(self.model_file()), "rb") as file:
             return pickle.load(file)
 
-    def save_model(self, project, instance):
-        with open(self.model_file(project.path(instance.name), instance), "wb") as file:
+    def save_model(self, project):
+        with open(project.path(self.model_file()), "wb") as file:
             pickle.dump(self.model, file)
 
-    def build_model(self, instance):
+    def build_model(self):
         return SVC(
-            kernel = "linear",
             probability = True,
-            random_state = 1234
+            kernel = self.field_kernel,
+            random_state = self.field_random_state
         )
 
 
-    def train_model(self, instance, dataset):
-        self.command.notice("Fitting {} model {} TFIDF trainer".format(self.name, instance.name))
-        self.tfidf_trainer.fit(dataset[self.field_predictor])
+    def train_model(self, predictors, targets):
+        self.command.notice("Fitting TFIDF trainer")
+        self.tfidf_trainer.fit(predictors)
 
-        self.command.notice("Fitting {} model {} classifications".format(self.name, instance.name))
-        return self.model.fit(
-            self.tfidf_trainer.transform(dataset[self.field_predictor]),
-            dataset[self.field_target]
+        self.command.notice("Fitting classification model")
+        self.model.fit(
+            self.tfidf_trainer.transform(predictors),
+            targets
         )
 
-    def predict_model(self, instance, data):
-        multiple = True
-
-        if isinstance(data, (tuple, list)):
-            data = list(data)
-        elif isinstance(data, str):
-            data = [data]
-            multiple = False
-        else:
-            data = data[self.field_predictor]
-
-        results = self.model.predict_proba(
+    def predict_model(self, data):
+        return self.model.predict_proba(
             self.tfidf_trainer.transform(data)
         )[:, 1]
-        return results if multiple else results[0]
+
+    def normalize_predictions(self, predictions):
+        predictions = predictions > settings.REMOTE_AI_PREDICTION_THRESHOLD
+        return predictions.astype(int)
