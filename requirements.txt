@@ -1,5 +1,4 @@
 # Machine learning
-scikit-learn==1.0.1
 transformers==4.12.5
 torch==1.10.0
 nltk==3.6.4
