@@ -11,24 +11,22 @@ class TfidfTrainer(object):
         self.load()
 
 
-    def word_vectorizer_file(self, vectorizer_path):
-        return "{}_{}_{}".format(vectorizer_path, self.model_provider.name, 'word_vectorizer.pk')
+    def word_file(self):
+        return "{}_{}_{}".format(self.model_provider.name, self.model_provider.instance.name, 'word_vectorizer.pk')
 
-    def char_vectorizer_file(self, vectorizer_path):
-        return "{}_{}_{}".format(vectorizer_path, self.model_provider.name, 'char_vectorizer.pk')
+    def char_file(self):
+        return "{}_{}_{}".format(self.model_provider.name, self.model_provider.instance.name, 'char_vectorizer.pk')
 
 
     def load(self):
         with self.model_provider.get_model_project() as project:
-            vectorizer_path = project.path(self.model_provider.instance.name)
-            word_file = self.word_vectorizer_file(vectorizer_path)
-            char_file = self.char_vectorizer_file(vectorizer_path)
+            word_file = self.word_file()
 
             if project.exists(word_file):
-                with open(word_file, "rb") as file:
+                with open(project.path(word_file), "rb") as file:
                     self.word_vectorizer = pickle.load(file)
 
-                with open(char_file, "rb") as file:
+                with open(project.path(self.char_file()), "rb") as file:
                     self.char_vectorizer = pickle.load(file)
             else:
                 self.build_vectorizer()
@@ -36,20 +34,16 @@ class TfidfTrainer(object):
 
     def save(self):
         with self.model_provider.get_model_project() as project:
-            vectorizer_path = project.path(self.model_provider.instance.name)
-
-            with open(self.word_vectorizer_file(vectorizer_path), "wb") as file:
+            with open(project.path(self.word_file()), "wb") as file:
                 pickle.dump(self.word_vectorizer, file)
 
-            with open(self.char_vectorizer_file(vectorizer_path), "wb") as file:
+            with open(project.path(self.char_file()), "wb") as file:
                 pickle.dump(self.char_vectorizer, file)
 
     def remove(self):
         with self.model_provider.get_model_project() as project:
-            vectorizer_path = project.path(self.model_provider.instance.name)
-
-            project.remove(self.word_vectorizer_file(vectorizer_path))
-            project.remove(self.char_vectorizer_file(vectorizer_path))
+            project.remove(self.word_file())
+            project.remove(self.char_file())
 
 
     def build_vectorizer(self):
