@@ -47,8 +47,20 @@ data:
             training_percentage:
                 type: "@django.FloatField"
                 options:
+                    "null": false
+                    default: 0.7
+            precision:
+                type: "@django.FloatField"
+                options:
                     "null": true
-                    default: 1
+            recall:
+                type: "@django.FloatField"
+                options:
+                    "null": true
+            f1_score:
+                type: "@django.FloatField"
+                options:
+                    "null": true
         meta:
             ordering_fields: [name, dataset__name]
             ordering: [name, -created]
