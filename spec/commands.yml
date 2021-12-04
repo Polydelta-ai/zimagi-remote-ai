@@ -16,7 +16,7 @@ command:
                     parser: variable
                     type: str
                     help: "Job text"
-                    value_label: "NAME"
+                    value_label: "TEXT"
                 model_groups:
                     parser: variables
                     type: str
