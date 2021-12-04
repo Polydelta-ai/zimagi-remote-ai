@@ -17,6 +17,33 @@ command:
                     type: str
                     help: "Job text"
                     value_label: "NAME"
+                model_groups:
+                    parser: variables
+                    type: str
+                    help: "Group names for filtering relevant models"
+                    value_label: "GROUP"
+                training_percentage_min:
+                    parser: variable
+                    type: float
+                    default: 0.5
+                    help: "Minimum training percentage allowed for comparing model performance"
+                    value_label: "PERCENT"
+                training_percentage_max:
+                    parser: variable
+                    type: float
+                    default: 0.8
+                    help: "Maximum training percentage allowed for comparing model performance"
+                    value_label: "PERCENT"
+                metric_field:
+                    parser: variable
+                    type: str
+                    default: "f1_score"
+                    help: "Metric field for optimizing prediction model"
+                    value_label: "FIELD"
             parse:
-                remote_ai_model_name: false
                 job_text: false
+                remote_ai_model_name: "--model"
+                model_groups: "--model-groups"
+                training_percentage_min: "--train-pct-min"
+                training_percentage_max: "--train-pct-max"
+                metric_field: "--metric-field"

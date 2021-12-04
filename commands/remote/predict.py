@@ -7,7 +7,7 @@ from systems.remote_ai.preprocessor import Preprocessor
 class Predict(Command('remote.predict')):
 
     def exec(self):
-        model = self.remote_ai_model
+        model = self.find_remote_ai_model()
         record = self._remote_ai_prediction.create(None,
             remote_ai_model = model,
             job_text = self.job_text
@@ -21,6 +21,28 @@ class Predict(Command('remote.predict')):
         record.save()
         self.data("Prediction", record.prediction, 'prediction')
         self.data("Classification", str(record.classification), 'classification')
+
+
+    def find_remote_ai_model(self):
+        if self.remote_ai_model_name:
+            model = self.remote_ai_model
+        else:
+            filters = {}
+
+            if self.model_groups:
+                filters['groups__name__in'] = self.model_groups
+
+            filters['training_percentage__range'] = [
+                self.training_percentage_min,
+                self.training_percentage_max
+            ]
+
+            model = self._remote_ai_model.set_order(
+                "-{}".format(self.metric_field)
+            ).filter(**filters)[0]
+            model.initialize(self)
+
+        return model
 
 
     def classify_prediction(self, prediction):
