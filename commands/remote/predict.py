@@ -16,7 +16,7 @@ class Predict(Command('remote.predict')):
             Preprocessor.run(self.job_text)
         )
         record.threshold_diff = (record.prediction - settings.REMOTE_AI_PREDICTION_THRESHOLD)
-        record.classification = self.classify_prediction(record.prediction)
+        record.classification = model.provider.classify_prediction(record.prediction)
 
         record.save()
         self.data("Prediction", record.prediction, 'prediction')
