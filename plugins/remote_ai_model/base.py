@@ -129,6 +129,12 @@ class BaseProvider(BasePlugin('remote_ai_model')):
                 self.command.data('Recall', self.instance.recall)
                 self.command.data('F1 score', self.instance.f1_score)
 
+                if save:
+                    self.train_model(
+                        dataset[self.field_predictor],
+                        dataset[self.field_target]
+                    )
+
             if save:
                 self._save()
 
@@ -176,6 +182,9 @@ class BaseProvider(BasePlugin('remote_ai_model')):
 
     def predict_model(self, data):
         raise NotImplementedError("Implement predict_model in derived classes of the base Machine Learning Model provider")
+
+    def classify_prediction(self, prediction):
+        raise NotImplementedError("Implement classify_prediction in derived classes of the base Machine Learning Model provider")
 
 
     def export(self, name, data, **options):
