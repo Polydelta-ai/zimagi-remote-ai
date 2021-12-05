@@ -3,6 +3,9 @@ config_store:
         - name
         - provider_type
         - training_percentage
+        - precision
+        - recall
+        - f1_score
         - dataset
         - groups
     remote_ai_model_display_fields:
@@ -12,6 +15,9 @@ config_store:
         - config
         - variables
         - training_percentage
+        - precision
+        - recall
+        - f1_score
         - created
         - updated
         - dataset
