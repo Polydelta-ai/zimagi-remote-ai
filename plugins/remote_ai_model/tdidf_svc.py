@@ -40,3 +40,21 @@ class Provider(BaseProvider('remote_ai_model', 'tdidf_svc')):
     def normalize_predictions(self, predictions):
         predictions = predictions > settings.REMOTE_AI_PREDICTION_THRESHOLD
         return predictions.astype(int)
+
+
+    def classify_prediction(self, prediction):
+        classification = None
+
+        if prediction >= settings.REMOTE_AI_PREDICTION_THRESHOLD:
+            if prediction >= settings.REMOTE_AI_PREDICTION_HIGH_CONFIDENCE:
+                classification = 'ELIGIBLE high confidence'
+            else:
+                classification = 'ELIGIBLE medium confidence'
+
+        elif 1 - prediction >= settings.REMOTE_AI_PREDICTION_THRESHOLD:
+            if 1 - prediction >= settings.REMOTE_AI_PREDICTION_HIGH_CONFIDENCE:
+                classification = 'INELIGIBLE high confidence'
+            else:
+                classification = 'INELIGIBLE medium confidence'
+
+        return classification
