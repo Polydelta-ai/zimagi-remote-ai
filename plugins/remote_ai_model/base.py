@@ -46,7 +46,8 @@ class BaseProvider(BasePlugin('remote_ai_model')):
 
     def _load(self):
         if not self.model:
-            self.instance.dataset.initialize(self.command)
+            if self.instance.dataset is not None:
+                self.instance.dataset.initialize(self.command)
 
             with self.get_model_project() as project:
                 if project.exists(self.model_file()):
