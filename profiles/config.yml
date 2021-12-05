@@ -1,0 +1,22 @@
+config:
+    data: [usa_jobs_search]
+
+    features:
+        text_remote_data:
+            module: remote_ai
+            profile: features/text_remote
+
+    models:
+        tdidf_svc:
+            feature_set: text_remote_data
+            provider: tdidf_svc
+            groups: [svc, tdidf]
+
+    import_data: true
+    generate_features: true
+    save_models: true
+    training_percentage: 0.75
+    queue_model_save: false
+
+    remove_features: true
+    remove_models: true
