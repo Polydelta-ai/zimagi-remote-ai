@@ -1,0 +1,57 @@
+parents:
+    - config
+
+pre_run:
+    feature_names:
+        config: feature_names
+        value: "#keys(@features)"
+
+run:
+    import_data:
+        when: "@import_data"
+        command: import
+        import_names: "@data"
+
+    "generate_<<dict_key>>":
+        when: "@generate_features"
+        requires: import_data
+        foreach: "@features"
+        command: run
+        module_name: "<<module>>"
+        profile_name: "<<profile>>"
+        profile_config_fields:
+            name: "<<dict_key>>"
+
+    "save_model_<<dict_key>>":
+        when: "@save_models"
+        requires: "#prefix(@feature_names, generate_)"
+        foreach: "@models"
+        command: remote model save
+        push_queue: "@queue_model_save"
+        group_names: "<<groups.*>>"
+        dataset_name: "<<feature_set>>"
+        remote_ai_model_provider_name: "<<provider>>"
+        remote_ai_model_name: "<<dict_key>>"
+        remote_ai_model_fields:
+            training_percentage: "@training_percentage"
+
+pre_destroy:
+    model_names:
+        config: model_names
+        value: "#keys(@models)"
+
+destroy:
+    "remove_model_<<dict_key>>":
+        when: "@remove_models"
+        foreach: "@models"
+        command: remote model remove
+        remote_ai_model_name: "<<dict_key>>"
+        force: true
+
+    "remove_dataset_<<dict_key>>":
+        when: "@remove_features"
+        requires: "#prefix(@model_names, remove_model_)"
+        foreach: "@features"
+        command: data remove
+        dataset_name: "<<dict_key>>"
+        force: true
