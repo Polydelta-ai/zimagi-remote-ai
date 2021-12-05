@@ -25,21 +25,3 @@ class RemoteAIMixin(CommandMixin('remote_ai')):
             model.initialize(self)
 
         return model
-
-
-    def classify_prediction(self, prediction):
-        classification = None
-
-        if prediction >= settings.REMOTE_AI_PREDICTION_THRESHOLD:
-            if prediction >= settings.REMOTE_AI_PREDICTION_HIGH_CONFIDENCE:
-                classification = 'ELIGIBLE high confidence'
-            else:
-                classification = 'ELIGIBLE medium confidence'
-
-        elif 1 - prediction >= settings.REMOTE_AI_PREDICTION_THRESHOLD:
-            if 1 - prediction >= settings.REMOTE_AI_PREDICTION_HIGH_CONFIDENCE:
-                classification = 'INELIGIBLE high confidence'
-            else:
-                classification = 'INELIGIBLE medium confidence'
-
-        return classification
