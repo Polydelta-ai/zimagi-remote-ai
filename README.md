@@ -114,6 +114,8 @@ Finally Zimagi can provide **fast cached CSV exports of all datasets in the syst
 <hr/>
 <br/>
 
+
+
 <br/>
 
 ### Limitations
@@ -125,6 +127,10 @@ Finally Zimagi can provide **fast cached CSV exports of all datasets in the syst
 ### Technologies
 <hr/>
 <br/>
+
+<p align="center">
+  <img width="700" src="assets/framework-architecture.png">
+</p>
 
 <br/>
 
@@ -143,6 +149,141 @@ Finally Zimagi can provide **fast cached CSV exports of all datasets in the syst
 ### Web platform
 <hr/>
 <br/>
+
+The Zimagi platform is composed of four interconnected microservices, and depends on both relational and non-relational databases.
+
+* **Data API** - Allow searchable data access through self-documenting REST API
+
+* **Command API** - Provide a remote operating system for data processing
+
+* **Scheduler** - Execute commands based on user defined schedules
+
+* **Workers** - Run commands concurrently in the background
+
+<br/>
+
+The Zimagi platform depends on:
+
+* **PostgreSQL / MySQL / SQLite3 Relational Database** - Used for storing all of the created and imported models and related platform data
+
+* **Redis In-Memory NoSQL Data Store** - Used for queueing and caching
+
+<br/>
+
+_The diagram below illustrates how the pieces fit together:_
+
+<p align="center">
+  <img width="700" src="assets/service-architecture.png">
+</p>
+
+<br/>
+
+There are two primary and supported ways to launch the Zimagi web platform as a continuous web service.
+
+We currently build on Docker containers and use Docker Compose to build single server platform hosting environments.  If you are looking to host a simple development instance and don't want to mess around with Kubernetes this is the way to go for small non high availability deployments, such as a prototype, module or core development, or just kicking the tires.
+
+If you need more power for your deployment we package Zimagi up as a Helm chart for Kubernetes that can deploy everything needed in one shot as a fully functioning autoscalable cluster.  It can also connect up to dedicated databases like AWS RDS or ElasticCache.  If the Kubernetes cluster was built with high availability in mind then Zimagi can benefit from a self healing architecture that provides a fair amount of service high availability.
+
+We are putting a lot of work into our autoscaling Kubernetes hosting architecture so there will be many improvements in this area.  Zmagi is designed for scalability and multi / hybrid cloud deployments.
+
+In each hosting scenario mentioned above Zimagi tries to make the deployment process painless, as you will see in the following instructions.  **If you venture outside the realm of Docker Compose or Kubernetes and Helm, we can try to answer questions, but those hosting architectures are not supported by the core development team.**
+
+<br/>
+
+#### SSL Certificates
+
+<br/>
+
+Before we get into the details of the deployment process on either Docker Compose or Kubernetes with Helm we need to consider SSL certificates on the Zimagi Docker image.  **This is the very first thing you need to decide because the entire security of the platform is at stake.**
+
+The official Zimagi container image ships with developer generated self-signed SSL certificates, which are located in a repository linked at the bottom of this document.  The certificates are only good for development in a secure environment.  If you want to run a secure remote web service you will want to replace these.  They are available as ARGS to the Dockerfile.  This means you need to generate a new Dockerfile with your SSL certificates.
+
+This is particularly important with Zimagi because the platform uses a private key generated from the combination of certificate information as an AES-256 encryption key for storing encrypted information, parsing encrypted API tokens and parameters, and generating encrypted messages to clients.  This way only the same containers can talk to each other, and access to those container images can be tightly controlled.
+
+For a secure web environment, we recommend creating a private Docker repository, or atleast a private Docker Hub account, and have a CI/CD system generate new re-keyed images from the official images as new tags are released.  We have an example project that works with our CI/CD provider, CircleCI, available on [GitHub](https://github.com/zimagi/build) _(also linked to at the bottom of this document)_.  If you use CircleCI and Docker Hub you can fork this repository and fill in some environment variables and the CI/CD platform will take over from there.
+
+If you are an intermediate to advanced user of Docker you should have no problem rekeying the Zimagi Docker image with secure certificates.
+
+It is important to remember that **only the Zimagi Docker images with the same SSL certificates can talk to each other by default** unless you disable the API encryption with environment variable **ZIMAGI_ENCRYPT_API**.
+
+<br/>
+
+_Example **Dockerfile**:_
+```dockerfile
+ARG ZIMAGI_VERSION=latest
+FROM zimagi/zimagi:${ZIMAGI_VERSION}
+#
+#====================================================================
+# OS environment configuration
+#
+ARG ZIMAGI_CA_KEY
+ARG ZIMAGI_CA_CERT
+ARG ZIMAGI_KEY
+ARG ZIMAGI_CERT
+
+RUN store-key /etc/ssl/private/zimagi-ca.key "${ZIMAGI_CA_KEY}"
+RUN store-cert /usr/local/share/ca-certificates/zimagi-ca.crt "${ZIMAGI_CA_CERT}"
+RUN update-ca-certificates
+
+RUN store-key /etc/ssl/private/zimagi.key "${ZIMAGI_KEY}"
+RUN store-cert /etc/ssl/certs/zimagi.crt "${ZIMAGI_CERT}"
+```
+
+<br/>
+
+_Example Re-keyed Zimagi image deployment **shell script**:_
+
+```bash
+#!/usr/bin/env bash
+#-------------------------------------------------------------------------------
+set -e
+
+ZIMAGI_BASE_REGISTRY="${ZIMAGI_BASE_REGISTRY:-registry.hub.docker.com}"
+ZIMAGI_BASE_IMAGE="${ZIMAGI_BASE_IMAGE:-zimagi/zimagi}"
+
+ZIMAGI_REGISTRY="${ZIMAGI_REGISTRY:-registry.hub.docker.com}"
+#-------------------------------------------------------------------------------
+
+echo "Fetching upstream Zimagi tags"
+ZIMAGI_TAGS="$(wget -q "https://${ZIMAGI_BASE_REGISTRY}/v1/repositories/${ZIMAGI_BASE_IMAGE}/tags" -O - | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n' | awk -F: '{print $3}')"
+
+echo "Logging into DockerHub"
+echo "$ZIMAGI_REGISTRY_PASSWORD" | docker login --username "$ZIMAGI_REGISTRY_USER" --password-stdin "${ZIMAGI_REGISTRY}"
+
+for TAG in $ZIMAGI_TAGS
+do
+    echo "Building Zimagi tag: ${TAG}"
+    docker build \
+        --build-arg ZIMAGI_VERSION="${TAG}" \
+        --build-arg ZIMAGI_CA_KEY \
+        --build-arg ZIMAGI_CA_CERT \
+        --build-arg ZIMAGI_KEY \
+        --build-arg ZIMAGI_CERT \
+        --file "Dockerfile" \
+        --tag "${ZIMAGI_REGISTRY}/${ZIMAGI_IMAGE}:${TAG}" .
+
+    echo "Pushing Zimagi tag: ${TAG}"
+    docker push "${ZIMAGI_REGISTRY}/${ZIMAGI_IMAGE}:${TAG}"
+done
+```
+
+<br/>
+
+#### Docker Compose deployment
+
+<br/>
+
+If you need a single server deployment of Zimagi Docker Compose can come in handy.  If you spin up Docker, setup Docker Compose on the server, you have an easy way of managing interconnected services on the same machine.  All core Zimagi development work is done in these environments, and they can be a cost effective way to launch a Zimagi platform quickly and easily.
+
+Local host machine
+
+Vagrant virtual machine
+
+Single server
+
+<br/>
+
+#### Kubernetes Helm deployment
 
 <br/>
 
