@@ -110,6 +110,7 @@ class BaseProvider(BasePlugin('remote_ai_model')):
     def _train(self, save = True):
         if self.instance.dataset is not None:
             dataset = self.instance.dataset.provider.load()
+            update_instance = False
 
             self.command.notice("Training {} model {}".format(self.name, self.instance.name))
             training_data, test_data = self._split_data(dataset)
@@ -135,9 +136,13 @@ class BaseProvider(BasePlugin('remote_ai_model')):
                         dataset[self.field_predictor],
                         dataset[self.field_target]
                     )
+                    update_instance = True
 
             if save:
                 self._save()
+
+                if update_instance:
+                    self.instance.save()
 
     def train_model(self, predictors, targets):
         raise NotImplementedError("Implement train_model in derived classes of the base Machine Learning Model provider")
@@ -148,7 +153,6 @@ class BaseProvider(BasePlugin('remote_ai_model')):
         self.instance.precision = precision_score(targets, predictions)
         self.instance.recall = recall_score(targets, predictions)
         self.instance.f1_score = f1_score(targets, predictions)
-        self.instance.save()
 
     def normalize_predictions(self, predictions):
         # Override in providers if needed
