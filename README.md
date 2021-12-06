@@ -3,7 +3,7 @@
 </p>
 <hr/>
 
-<center><h1>Remote Classification Engine</h1></center>
+<h1 align="center">Remote Classification Engine</h1>
 <br/>
 
 ## Overview
@@ -144,7 +144,7 @@ Finally Zimagi can provide **fast cached CSV exports of all datasets in the syst
 
 Before we get into the details of the deployment process we need to consider SSL certificates on the Zimagi Docker image.  **This is the very first thing you need to decide because the entire security of the platform is at stake.**
 
-The official Zimagi container image ships with developer generated self-signed SSL certificates, which are located in a repository linked at the bottom of this document.  The certificates are only good for development in a secure environment.  If you want to run a secure remote web service you will want to replace these.  They are available as ARGS to the Dockerfile.  This means you need to generate a new Dockerfile with your SSL certificates.
+The official Zimagi container image ships with developer generated self-signed SSL certificates, which are located in a repository linked at the bottom of this document.  The certificates are only good for development in a secure environment.  If you want to run a secure remote web service you will want to replace these.  They are available as ARGs to the Dockerfile.  This means you need to generate a new Dockerfile with your SSL certificates.
 
 This is particularly important with Zimagi because the platform uses a private key generated from the combination of certificate information as an AES-256 encryption key for storing encrypted information, parsing encrypted API tokens and parameters, and generating encrypted messages to clients.  This way only the same containers can talk to each other, and access to those container images can be tightly controlled.
 
