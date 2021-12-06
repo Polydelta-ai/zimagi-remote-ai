@@ -138,63 +138,11 @@ Finally Zimagi can provide **fast cached CSV exports of all datasets in the syst
 <hr/>
 <br/>
 
-<br/>
-
-### Local CLI tool
-<hr/>
-<br/>
-
-<br/>
-
-### Web platform
-<hr/>
-<br/>
-
-The Zimagi platform is composed of four interconnected microservices, and depends on both relational and non-relational databases.
-
-* **Data API** - Allow searchable data access through self-documenting REST API
-
-* **Command API** - Provide a remote operating system for data processing
-
-* **Scheduler** - Execute commands based on user defined schedules
-
-* **Workers** - Run commands concurrently in the background
-
-<br/>
-
-The Zimagi platform depends on:
-
-* **PostgreSQL / MySQL / SQLite3 Relational Database** - Used for storing all of the created and imported models and related platform data
-
-* **Redis In-Memory NoSQL Data Store** - Used for queueing and caching
-
-<br/>
-
-_The diagram below illustrates how the pieces fit together:_
-
-<p align="center">
-  <img width="700" src="assets/service-architecture.png">
-</p>
-
-<br/>
-
-There are two primary and supported ways to launch the Zimagi web platform as a continuous web service.
-
-We currently build on Docker containers and use Docker Compose to build single server platform hosting environments.  If you are looking to host a simple development instance and don't want to mess around with Kubernetes this is the way to go for small non high availability deployments, such as a prototype, module or core development, or just kicking the tires.
-
-If you need more power for your deployment we package Zimagi up as a Helm chart for Kubernetes that can deploy everything needed in one shot as a fully functioning autoscalable cluster.  It can also connect up to dedicated databases like AWS RDS or ElasticCache.  If the Kubernetes cluster was built with high availability in mind then Zimagi can benefit from a self healing architecture that provides a fair amount of service high availability.
-
-We are putting a lot of work into our autoscaling Kubernetes hosting architecture so there will be many improvements in this area.  Zmagi is designed for scalability and multi / hybrid cloud deployments.
-
-In each hosting scenario mentioned above Zimagi tries to make the deployment process painless, as you will see in the following instructions.  **If you venture outside the realm of Docker Compose or Kubernetes and Helm, we can try to answer questions, but those hosting architectures are not supported by the core development team.**
-
-<br/>
-
 #### SSL Certificates
 
 <br/>
 
-Before we get into the details of the deployment process on either Docker Compose or Kubernetes with Helm we need to consider SSL certificates on the Zimagi Docker image.  **This is the very first thing you need to decide because the entire security of the platform is at stake.**
+Before we get into the details of the deployment process we need to consider SSL certificates on the Zimagi Docker image.  **This is the very first thing you need to decide because the entire security of the platform is at stake.**
 
 The official Zimagi container image ships with developer generated self-signed SSL certificates, which are located in a repository linked at the bottom of this document.  The certificates are only good for development in a secure environment.  If you want to run a secure remote web service you will want to replace these.  They are available as ARGS to the Dockerfile.  This means you need to generate a new Dockerfile with your SSL certificates.
 
@@ -266,6 +214,58 @@ do
     docker push "${ZIMAGI_REGISTRY}/${ZIMAGI_IMAGE}:${TAG}"
 done
 ```
+
+<br/>
+
+### Local CLI tool
+<hr/>
+<br/>
+
+<br/>
+
+### Web platform
+<hr/>
+<br/>
+
+The Zimagi platform is composed of four interconnected microservices, and depends on both relational and non-relational databases.
+
+* **Data API** - Allow searchable data access through self-documenting REST API
+
+* **Command API** - Provide a remote operating system for data processing
+
+* **Scheduler** - Execute commands based on user defined schedules
+
+* **Workers** - Run commands concurrently in the background
+
+<br/>
+
+The Zimagi platform depends on:
+
+* **PostgreSQL / MySQL / SQLite3 Relational Database** - Used for storing all of the created and imported models and related platform data
+
+* **Redis In-Memory NoSQL Data Store** - Used for queueing and caching
+
+<br/>
+
+_The diagram below illustrates how the pieces fit together:_
+
+<p align="center">
+  <img width="700" src="assets/service-architecture.png">
+</p>
+
+<br/>
+
+There are two primary and supported ways to launch the Zimagi web platform as a continuous web service.
+
+We currently build on Docker containers and use Docker Compose to build single server platform hosting environments.  If you are looking to host a simple development instance and don't want to mess around with Kubernetes this is the way to go for small non high availability deployments, such as a prototype, module or core development, or just kicking the tires.
+
+If you need more power for your deployment we package Zimagi up as a Helm chart for Kubernetes that can deploy everything needed in one shot as a fully functioning autoscalable cluster.  It can also connect up to dedicated databases like AWS RDS or ElasticCache.  If the Kubernetes cluster was built with high availability in mind then Zimagi can benefit from a self healing architecture that provides a fair amount of service high availability.
+
+We are putting a lot of work into our autoscaling Kubernetes hosting architecture so there will be many improvements in this area.  Zmagi is designed for scalability and multi / hybrid cloud deployments.
+
+In each hosting scenario mentioned above Zimagi tries to make the deployment process painless, as you will see in the following instructions.  **If you venture outside the realm of Docker Compose or Kubernetes and Helm, we can try to answer questions, but those hosting architectures are not supported by the core development team.**
+
+<br/>
 
 <br/>
 
