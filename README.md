@@ -114,8 +114,6 @@ Finally Zimagi can provide **fast cached CSV exports of all datasets in the syst
 <hr/>
 <br/>
 
-
-
 <br/>
 
 ### Limitations
@@ -221,6 +219,8 @@ done
 <hr/>
 <br/>
 
+
+
 <br/>
 
 ### Web platform
@@ -247,7 +247,7 @@ The Zimagi platform depends on:
 
 <br/>
 
-_The diagram below illustrates how the pieces fit together:_
+_The diagram below illustrates how the services fit together:_
 
 <p align="center">
   <img width="700" src="assets/service-architecture.png">
@@ -265,7 +265,7 @@ We are putting a lot of work into our autoscaling Kubernetes hosting architectur
 
 In each hosting scenario mentioned above Zimagi tries to make the deployment process painless, as you will see in the following instructions.  **If you venture outside the realm of Docker Compose or Kubernetes and Helm, we can try to answer questions, but those hosting architectures are not supported by the core development team.**
 
-<br/>
+The USA Jobs module used by this module requires credentials to pull data so you will want to have those credentials handy during this process.  If you do not have an access key yet first [register here to get one](https://developer.usajobs.gov/APIRequest/Index).
 
 <br/>
 
@@ -273,13 +273,262 @@ In each hosting scenario mentioned above Zimagi tries to make the deployment pro
 
 <br/>
 
-If you need a single server deployment of Zimagi Docker Compose can come in handy.  If you spin up Docker, setup Docker Compose on the server, you have an easy way of managing interconnected services on the same machine.  All core Zimagi development work is done in these environments, and they can be a cost effective way to launch a Zimagi platform quickly and easily.
+If you need a single server deployment of Zimagi Docker Compose can come in handy.  If you spin up Docker and setup Docker Compose on the computer, you have an easy way of managing interconnected services on the same machine.  All core Zimagi development work is done in these environments, and they can be a cost effective way to launch a Zimagi platform quickly and easily.
 
-Local host machine
+When we are going the Docker Compose route we are most likely running on our local machine, a Vagrant Virtual Box virtual machine _(which the core development team uses to standardize development dependencies)_, or a physical or cloud Linux server.  There are a few things to remember for each deployment strategy, which we will cover below.
 
-Vagrant virtual machine
+The first thing you must ensure is that you have both [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on the machine that will be running Zimagi.  While Docker works across Windows, Mac, and Linux we have only extensively tested so far with Linux.  If you try running on another OS, questions and bug reports welcome.
 
-Single server
+<br/>
+
+**Development on a Vagrant virtual machine**
+
+<br/>
+
+Getting started with Zimagi development is easy.  We just need to follow a few steps and we can be playing around with the full platform without having to mess around with server configurations.  Most of the core development is done within Vagrant environments.
+
+Before you begin you need to ensure that [**Vagrant**](https://www.vagrantup.com/downloads) and [**Virtualbox**](https://www.virtualbox.org/wiki/Downloads) are installed on your system.  There are installers for Linux, Windows, and Mac and the process is very simple.  If you do not have these systems yet then follow the links above to install on your machine.
+
+Once you have Vagrant and Virtualbox installed on your system run the following...
+
+<br/>
+
+```bash
+# Clone the Zimagi platform to the local environment and move to project directory
+git clone https://github.com/zimagi/zimagi.git remote_ai_project
+cd remote_ai_project
+```
+
+<br/>
+
+Copy the default Vagrant configuration at **vagrant/config.default.yml** to **vagrant/config.yml**.  This config.yml file is ignored by the Git version control system.  Change any values you need, but we recommend changing the **hostname**, **cpus**, **memory_size**, and whether or not you'd like to share various shell environment files based on your system.
+
+<br/>
+
+```bash
+# Start the Vagrant virtual machine
+vagrant up
+
+# Add your USA Jobs API credentials to the environment variables
+cat >> data/.env <<END
+ZIMAGI_USA_JOBS_API_EMAIL=your_email@example.com
+ZIMAGI_USA_JOBS_API_KEY=YOUR_ACCESS_TOKEN
+END
+
+# Login to the Vagrant virtual machine
+vagrant ssh
+
+# Start Docker services
+docker-compose up -d
+docker-compose ps  # Check running services
+docker-compose logs -f  # Follow log messages if desired
+
+# Service endpoints:
+# Command API -> https://localhost:5123/
+# Data API -> https://localhost:5323/
+
+# Run CLI from top level project directory
+zimagi host save default host=localhost  # Connect to remote service
+zimagi env get  # Check current environment
+
+# Start interacting with the remote Zimagi platform
+zimagi user rotate  # Change password
+
+# Install remote-ai module into platform
+zimagi module add https://github.com/Polydelta-ai/zimagi-remote-ai.git reference=main
+
+# Restart services to install dependencies and update database
+docker-compose restart command-api
+# When that's done...
+docker-compose restart data-api scheduler worker
+
+zimagi module sync  # Syncronize modules between environments
+```
+
+<br/>
+
+**Development on your local machine**
+
+<br/>
+
+The Zimagi project ships with a local machine flavored docker-compose manifest at the top level of the project.  This docker-compose file is taylored to GPU workloads and includes GPU Docker directives as well as a base container that extends the Nvidia CUDA base image.  This Docker Compose definition builds the platform from source.
+
+<br/>
+
+```bash
+# Clone the Zimagi platform to the local environment and move to project directory
+git clone https://github.com/zimagi/zimagi.git remote_ai_project
+cd remote_ai_project
+
+# Build local Zimagi container image with project source
+./scripts/build.sh
+
+# Add your USA Jobs API credentials to the environment variables
+cat >> .env <<END
+ZIMAGI_USA_JOBS_API_EMAIL=your_email@example.com
+ZIMAGI_USA_JOBS_API_KEY=YOUR_ACCESS_TOKEN
+END
+
+# Start Docker services
+docker-compose up -d
+docker-compose ps  # Check running services
+docker-compose logs -f  # Follow log messages if desired
+
+# Service endpoints:
+# Command API -> https://localhost:5123/
+# Data API -> https://localhost:5323/
+
+# Run CLI from top level project directory
+./zimagi host save default host=localhost  # Connect to remote service
+./zimagi env get  # Check current environment
+
+# Start interacting with the remote Zimagi platform
+./zimagi user rotate  # Change password
+
+# Install remote-ai module into platform
+./zimagi module add https://github.com/Polydelta-ai/zimagi-remote-ai.git reference=main
+
+# Restart services to install dependencies and update database
+docker-compose restart command-api
+# When that's done...
+docker-compose restart data-api scheduler worker
+
+./zimagi module sync  # Syncronize modules between environments
+```
+
+<br/>
+
+**Hosting on a server**
+
+<br/>
+
+You can create a fresh Docker Compose manifest from a remote Zimagi container image.  First create a **.env** file in a directory of your choosing.  It is very important that this **.env** file live in the same directory as the **docker-compose.yml** file.
+
+<br/>
+
+_**{project_directory}/.env**_
+```bash
+ZIMAGI_LOG_LEVEL=warning
+ZIMAGI_SECRET_KEY=RWCp0Smb3RnM1nd6ilOwDSFSFxpPX5YXP1GX6sbf
+ZIMAGI_POSTGRES_DB=pc7ZE9nziZ2uMChc
+ZIMAGI_POSTGRES_USER=3i1dhUzMbMfnNBeR
+ZIMAGI_POSTGRES_PASSWORD=roaYwccmcWIxXrnR
+ZIMAGI_REDIS_PASSWORD=LjEjt9tZsBFXCxJYOo7q
+ZIMAGI_USA_JOBS_API_EMAIL=your_email@example.com
+ZIMAGI_USA_JOBS_API_KEY=YOUR_ACCESS_TOKEN
+```
+
+<br/>
+
+_**{project_directory}/docker-compose.yml**_
+```yaml
+version: "3.9"
+
+x-zimagi: &zimagi
+    image: zimagi/zimagi:latest
+    restart: always
+    environment:
+        ZIMAGI_COMMAND_PORT: 5123
+        ZIMAGI_DATA_PORT: 5323
+        ZIMAGI_POSTGRES_HOST: data
+        ZIMAGI_POSTGRES_PORT: 5432
+        ZIMAGI_REDIS_HOST: objects
+        ZIMAGI_REDIS_PORT: 6379
+        ZIMAGI_WORKER_CONCURRENCY: 4
+    env_file: .env
+    volumes:
+        - .:/usr/local/lib/zimagi
+    depends_on:
+        - data
+        - objects
+
+services:
+    command-api:
+        <<: *zimagi
+        entrypoint: zimagi-command
+        ports:
+            - "5123:5123"
+
+    data-api:
+        <<: *zimagi
+        entrypoint: zimagi-data
+        ports:
+            - "5323:5323"
+
+    scheduler:
+        <<: *zimagi
+        entrypoint: zimagi-scheduler
+
+    worker:
+        <<: *zimagi
+        entrypoint: zimagi-worker
+
+    data:
+        image: postgres:12
+        command: postgres -c 'max_connections=100'
+        restart: always
+        environment:
+            POSTGRES_USER: ${ZIMAGI_POSTGRES_USER}
+            POSTGRES_PASSWORD: ${ZIMAGI_POSTGRES_PASSWORD}
+            POSTGRES_DB: ${ZIMAGI_POSTGRES_DB}
+        volumes:
+            - app-data:/var/lib/postgresql
+        ports:
+            - "5432:5432"
+
+    objects:
+        image: redis:5
+        restart: always
+        command: redis-server --requirepass ${ZIMAGI_REDIS_PASSWORD}
+        volumes:
+            - app-objects:/data
+        ports:
+            - "6379:6379"
+
+volumes:
+    app-data:
+        external: false
+
+    app-objects:
+        external: false
+```
+
+<br/>
+
+Then to start the services, simply...
+
+<br/>
+
+```bash
+# Start Docker services
+docker-compose up -d
+docker-compose ps  # Check running services
+docker-compose logs -f  # Follow log messages if desired
+
+# Service endpoints:
+# Command API -> https://localhost:5123/
+# Data API -> https://localhost:5323/
+
+# Install the Zimagi CLI
+pip install zimagi
+
+# Run CLI from top level project directory
+zimagi host save default host=localhost  # Connect to remote service
+zimagi env get  # Check current environment
+
+# Start interacting with the remote Zimagi platform
+zimagi user rotate  # Change password
+
+# Install remote-ai module into platform
+zimagi module add https://github.com/Polydelta-ai/zimagi-remote-ai.git reference=main
+
+# Restart services to install dependencies and update database
+docker-compose restart command-api
+# When that's done...
+docker-compose restart data-api scheduler worker
+
+zimagi module sync  # Syncronize modules between environments
+```
 
 <br/>
 
