@@ -219,7 +219,66 @@ done
 <hr/>
 <br/>
 
+#### Python PyPI installation (platform management)
 
+<br/>
+
+Ensure you have Python and the pip tool installed on your system.
+
+```bash
+# Zimagi CLI is hosted as a PyPI project
+pip install zimagi
+
+# Check current environment
+zimagi env get
+
+# Install remote-ai module into platform
+zimagi module add https://github.com/Polydelta-ai/zimagi-remote-ai.git reference=main
+```
+
+<br/>
+
+#### Vagrant installation (platform and module development)
+
+<br/>
+
+Before you begin you need to ensure that [**Vagrant**](https://www.vagrantup.com/downloads) and [**Virtualbox**](https://www.virtualbox.org/wiki/Downloads) are installed on your system.  There are installers for Linux, Windows, and Mac and the process is very simple.  If you do not have these systems yet then follow the links above to install on your machine.
+
+Once you have Vagrant and Virtualbox installed on your system run the following...
+
+<br/>
+
+```bash
+# Clone the Zimagi platform to the local environment and move to project directory
+git clone https://github.com/zimagi/zimagi.git remote_ai_project
+cd remote_ai_project
+```
+
+<br/>
+
+Copy the default Vagrant configuration at **vagrant/config.default.yml** to **vagrant/config.yml**.  This config.yml file is ignored by the Git version control system.  Change any values you need, but we recommend changing the **hostname**, **cpus**, **memory_size**, and whether or not you'd like to share various shell environment files based on your system.
+
+<br/>
+
+```bash
+# Start the Vagrant virtual machine
+vagrant up
+
+# Add your USA Jobs API credentials to the environment variables
+cat >> data/.env <<END
+ZIMAGI_USA_JOBS_API_EMAIL=your_email@example.com
+ZIMAGI_USA_JOBS_API_KEY=YOUR_ACCESS_TOKEN
+END
+
+# Login to the Vagrant virtual machine
+vagrant ssh
+
+# Check current environment
+zimagi env get
+
+# Install remote-ai module into platform
+zimagi module add https://github.com/Polydelta-ai/zimagi-remote-ai.git reference=main
+```
 
 <br/>
 
