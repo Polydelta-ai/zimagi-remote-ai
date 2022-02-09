@@ -20,7 +20,7 @@ data_mixins:
 data_base:
     remote_ai_model:
         class: RemoteAIModelBase
-        base: resource
+        base: id_resource
         mixins: [remote_ai_model]
         id_fields: [remote_ai_model_id, name]
         meta:
@@ -30,7 +30,7 @@ data_base:
 data:
     remote_ai_model:
         class: RemoteAIModel
-        base: resource
+        base: name_resource
         mixins: [provider, group]
         roles:
             edit: [remote-ai-admin]
@@ -62,9 +62,7 @@ data:
                 options:
                     "null": true
         meta:
-            ordering_fields: [name, dataset__name]
             ordering: [name, -created]
-            search_fields: [name, dataset__name]
             provider_name: remote_ai_model
             command_base: remote model
 
