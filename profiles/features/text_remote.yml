@@ -11,7 +11,7 @@ config:
 
 run:
     feature-set:
-        command: data save
+        _command: data save
         dataset_provider_name: collection
         dataset_name: "@name"
         dataset_fields:
