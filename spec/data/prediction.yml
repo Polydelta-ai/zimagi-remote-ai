@@ -20,7 +20,7 @@ data_mixins:
 data_base:
     remote_ai_prediction:
         class: RemoteAIPredictionBase
-        base: resource
+        base: id_resource
         mixins: [remote_ai_prediction]
         id_fields: [remote_ai_prediction_id, name]
         meta:
@@ -57,9 +57,7 @@ data:
                     max_length: 100
         meta:
             unique_together: [remote_ai_model, job_text]
-            ordering_fields: [job_title, created]
             ordering: [-created]
-            search_fields: [job_text, remote_ai_model__name]
             command_base: remote prediction
 
 command_mixins:
