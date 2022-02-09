@@ -16,7 +16,6 @@ config:
     generate_features: true
     save_models: true
     training_percentage: 0.75
-    queue_model_save: false
 
     remove_features: true
     remove_models: true
