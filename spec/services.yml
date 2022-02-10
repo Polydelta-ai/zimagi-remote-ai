@@ -1,0 +1,3 @@
+services:
+    worker:
+        memory: "@ZIMAGI_WORKER_SERVICE_MEMORY<< 4g >>"
