@@ -1,25 +1,31 @@
 config:
-    name: "text-remote-#time(%Y-%m-%d)"
     fields:
         - description
-        - classification_names:CONCAT:job_classifications__name:distinct=True
-        - predictor_raw < combined_text:name:append=description,classification_names;separator=','
-        - predictor < preprocess:predictor_raw
-        - target < bool_to_number:telework_eligible
+        - classification_names = job_classifications__name:CONCAT(distinct = True, separator = ' ')
+        - predictor_raw = combined_text(name, append = ['description', 'classification_names'], separator = ' ')
+        - predictor = preprocess(predictor_raw)
+        - target = bool_to_number(telework_eligible)
 
-    drop: [description, classification_names, predictor_raw]
+    drop:
+        - description
+        - classification_names
+        - predictor_raw
 
-run:
-    feature-set:
-        _command: data save
-        dataset_provider_name: collection
-        dataset_name: "@name"
-        dataset_fields:
-            "job:fields": "@fields"
-            "job:remove_fields": "@drop"
-            index_field: id
-            column_prefix: false
-            processors:
-                - drop_na
-                - drop_duplicates
-                - shuffle
+    processors:
+        - drop_na
+        - drop_duplicates
+        - shuffle
+
+data:
+    "text-remote-#time(%Y-%m-%d)":
+        _type: collection
+        _groups: jobs
+
+        prefix_column_query: false
+        index_field: id
+        processors: "@processors"
+
+        queries:
+            job:
+                fields: "@fields"
+                remove_fields: "@drop"
