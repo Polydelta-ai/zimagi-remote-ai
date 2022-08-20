@@ -1,4 +1,6 @@
 config:
+    name: "text-remote-#time(%Y-%m-%d)"
+
     fields:
         - description
         - classification_names = job_classifications__name:CONCAT(distinct = True, separator = ' ')
@@ -17,7 +19,7 @@ config:
         - shuffle
 
 data:
-    "text-remote-#time(%Y-%m-%d)":
+    "@name":
         _type: collection
         _groups: jobs
 
