@@ -2,7 +2,7 @@ parents:
     - config
 
 pre_run:
-    feature_names:
+    feature_keys:
         _config: "#keys(@features)"
 
 run:
@@ -16,25 +16,25 @@ run:
         _requires: import_data
         _foreach: "@features"
         _command: run
-        module_name: "<<module>>"
-        profile_name: "<<profile>>"
+        module_key: "<<module>>"
+        profile_key: "<<profile>>"
         profile_config_fields:
             name: "<<dict_key>>"
 
     "save_model_<<dict_key>>":
         _when: "@save_models"
-        _requires: "#prefix(@feature_names, generate_)"
+        _requires: "#prefix(@feature_keys, generate_)"
         _foreach: "@models"
         _command: remote model save
-        groups_names: "<<groups>>"
-        dataset_name: "<<feature_set>>"
+        groups_keys: "<<groups>>"
+        dataset_key: "<<feature_set>>"
         remote_ai_model_provider_name: "<<provider>>"
-        remote_ai_model_name: "<<dict_key>>"
+        remote_ai_model_key: "<<dict_key>>"
         remote_ai_model_fields:
             training_percentage: "@training_percentage"
 
 pre_destroy:
-    model_names:
+    model_keys:
         _config: "#keys(@models)"
 
 destroy:
@@ -42,13 +42,13 @@ destroy:
         _when: "@remove_models"
         _foreach: "@models"
         _command: remote model remove
-        remote_ai_model_name: "<<dict_key>>"
+        remote_ai_model_key: "<<dict_key>>"
         force: true
 
     "remove_dataset_<<dict_key>>":
         _when: "@remove_features"
-        _requires: "#prefix(@model_names, remove_model_)"
+        _requires: "#prefix(@model_keys, remove_model_)"
         _foreach: "@features"
         _command: data remove
-        dataset_name: "<<dict_key>>"
+        dataset_key: "<<dict_key>>"
         force: true
