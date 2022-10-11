@@ -7,10 +7,10 @@ config:
             profile: features/text_remote
 
     models:
-        tdidf_svc:
+        tfidf_svc:
             feature_set: text_remote_data
-            provider: tdidf_svc
-            groups: [svc, tdidf]
+            provider: tfidf_svc
+            groups: [svc, tfidf]
 
     import_data: true
     generate_features: true

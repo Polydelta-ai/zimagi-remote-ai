@@ -12,7 +12,7 @@ plugin:
                 default: target
                 help: "Name of the prediction target field within given dataset"
         providers:
-            tdidf_svc:
+            tfidf_svc:
                 option:
                     kernel:
                         type: str
