@@ -48,7 +48,7 @@ command:
                     value_label: "TEXT"
             parse:
                 job_text: false
-                remote_ai_model_name: "--model"
+                remote_ai_model_key: "--model"
                 model_groups: "--model-groups"
                 training_percentage_min: "--train-pct-min"
                 training_percentage_max: "--train-pct-max"
